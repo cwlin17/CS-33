@@ -1,5 +1,4 @@
 // Carol Lin
-// UID: 804984337
 // Smashing Lab
 
 1. Typed: which gcc
