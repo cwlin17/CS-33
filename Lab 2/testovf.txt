@@ -1,0 +1,31 @@
+// Carol Lin
+// UID: 804984337
+// Lab 2
+
+-O2:
+0:   31 c0				xor    %eax,%eax
+2:   c3         			retq
+
+The compiler optimizes this function to always return 0 since adding 9223372036854775807 to any integer n will result in an overflow,
+so the comparison n + 9223372036854775807 < n will always be false.
+
+-O2 -fwrapv:
+0:   48 b8 ff ff ff ff ff    movabs $0x7fffffffffffffff,%rax
+7:   ff ff 7f
+a:   48 01 f8                add    %rdi,%rax
+d:   48 39 f8                cmp    %rdi,%rax
+10:  0f 9c c0                setl   %al
+13:  c3                      retq
+
+The assembly-language file contains more lines than the previous compilation because of the -fwrapv flag, which means that positive 
+overflow will wrap around and the resulting value will be negative. This causes the compiler to actually make the comparison after 
+the two values are added together. 
+
+-O2 -fsanitize=undefined:
+0:   31 c0                   xor    %eax,%eax
+2:   c3                      retq
+
+This assembly code is the same as the one produced when the function was compiled with just -O2. I believe
+the assembly-language files are the same because the compiler recognizes that the result of the addition
+will always cause an overflow no matter what value n may be. As a result, the compiler optimizes the code
+to always return 0. 

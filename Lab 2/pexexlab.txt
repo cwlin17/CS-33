@@ -1,0 +1,43 @@
+// Carol Lin
+// UID: 804984337
+// Lab 2
+
+Gather Instruction Traces:
+-Typed: gdb --args ~eggert/bin64/bin/emacs-26.1 -batch -eval '(print (* 1250284240 -1844255039))'
+	-Entered the gdb
+	
+-Typed: r
+	-Ran the program
+	
+-Typed: break Ftimes
+	-Set breakpoint at function Ftimes
+	
+-Typed: r -batch -eval '(print(* 1250284240 -1844255039))'
+	-The program is run with the right arguments 
+	
+-Realized I didn't have automatic assembly instruction output
+-Typed: set disassemble-next-line on
+	-Automatically prints out assembly instructions each time you stop 
+	
+-Reran the program
+
+-Typed: info registers $rdx
+	-Checks what's in register %rdx
+	-Value was 0 because the first instruction of the function hadn't been run yet
+	
+-Typed: si
+	-Steps into the next machine instruction
+	
+-Typed: info registers $[register_name] 
+	-Prints the state of a specific register
+
+-Continusously used si and info registers $[register_name] to trace through the program
+
+Examine Integer Overflow Handling:
+-Typed: gcc -c -O2 testovf.c; objdump -d testovf.o
+	-Compiles the function with -O2 and outputs assembly language
+-Typed: gcc -c -O2 -fwrapv testovf.c; objdump -d testovf.o
+	-Compiles the function with signed wraparound on overflow enabled and outputs assembly language
+-Typed: gcc -c -O2 -fsanitize=undefined testovf.c; objdump -d testovf.o
+	-Compiles the function with the -fsanitize=undefined flag, which checks for undefined behavior. Also outputs assmebly language.
+	

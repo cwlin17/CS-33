@@ -1,0 +1,21 @@
+// Carol Lin
+// UID: 804984337
+// Lab 2
+
+1. The correct mathematical result wasn't produced because of: 
+   54e014 <arith_driver+372>:	lea 0x2(,%rbp,4),%rax
+   The instruction causes the value in %rbp to overflow, so the result is positive instead of negative.
+   
+2. The value most-negative-fixnum is found in data.c, and it corresponds to MOST_NEGATIVE_FIXNUM in lisp.h. In this header file, 
+   MOST_NEGATIVE_FIXNUM is defined as (-1 - MOST_POSITIVE_FIXNUM). MOST_POSITIVE_FIXNUM is defined as (EMACS_INT_MAX >> INTTYPEBITS), 
+   where INTTYPEBITS has a value of 2. Since this is compiled on the x86-64, EMACS_INT_MAX is the max value for long, which is 
+   0x7fffffffffffffff. When this value is right shifted by 2, you get 0x1fffffffffffffff. When you subtract this number from -1, 
+   the result is -2305843009213693952, which is what the command outputs.
+
+3. The shell command outputs only 1 because the multiplication causes overflow. In data.c, there's a switch statement with a case
+   that deals with multiplication overflow, called case Amult. It calls the function INT_MULTIPLY_WRAPV(accum, next, &accum), which
+   returns 1 when there's overflow.
+
+4. If Emacs is compiled with the -fwrapv flag, that means signed overflow wraps around. This could potentially cause problems 
+   because if two large numbers are multiplied together, they would cause overflow and the result of the multiplication would 
+   be incorrect. If there's no overflow, there wouldn't be any problems.
