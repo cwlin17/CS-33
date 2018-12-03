@@ -1,5 +1,4 @@
 // Carol Lin
-// UID: 804984337
 // Lab 2
 
 Gather Instruction Traces:
