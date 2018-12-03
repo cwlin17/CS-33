@@ -1,5 +1,4 @@
 // Carol Lin
-// UID: 804984337
 // Lab 2
 
 54e0f0 <Ftimes+0>:			48 89 f2 					mov	   %rsi,%rdx					rdx = 7fffffffc7a0
