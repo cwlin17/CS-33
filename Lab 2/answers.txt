@@ -1,5 +1,4 @@
 // Carol Lin
-// UID: 804984337
 // Lab 2
 
 1. The correct mathematical result wasn't produced because of: 
