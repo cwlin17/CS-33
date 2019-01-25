@@ -1,0 +1,121 @@
+// Carol Lin
+// UID: 804984337
+// Lab 4
+
+I downloaded openmplab.tgz from CCLE and sent a copy of it to Linux server 09.
+Then, I unzipped the tarball. 
+
+Typed: make seq
+	-Compiles the file normally and generates an exectuable called "seq"
+Typed: ./seq
+	-Executes seq and produces the following output that tells me how long the program takes
+	FUNC TIME : 0.746293
+	TOTAL TIME : 2.614472
+
+Typed: make seq GPROF=1
+	-Compiles with gprof enabled
+Typed: gprof seq | less
+	-Tells you how much time is spent in each function and produces the following output
+
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  ms/call  ms/call  name
+ 70.33      0.59     0.59       15    39.39    41.70  func1
+ 15.50      0.72     0.13  5177344     0.00     0.00  rand2
+  2.38      0.74     0.02   491520     0.00     0.00  findIndexBin
+  2.38      0.76     0.02       15     1.34     2.67  func5
+  2.38      0.78     0.02        2    10.01    10.01  init
+  1.19      0.79     0.01   983042     0.00     0.00  round
+  1.19      0.80     0.01       15     0.67     0.67  func2
+  1.19      0.81     0.01        1    10.01   115.47  addSeed
+  1.19      0.82     0.01        1    10.01    10.01  imdilateDisk
+  1.19      0.83     0.01                             filter
+  1.19      0.84     0.01                             sequence
+  0.00      0.84     0.00       16     0.00     0.00  dilateMatrix
+  0.00      0.84     0.00       15     0.00     0.00  func3
+  0.00      0.84     0.00       15     0.00     0.00  func4
+  0.00      0.84     0.00       15     0.00     0.00  rand1
+  0.00      0.84     0.00        2     0.00     0.00  get_time
+  0.00      0.84     0.00        1     0.00     0.00  elapsed_time
+  0.00      0.84     0.00        1     0.00     0.00  fillMatrix
+  0.00      0.84     0.00        1     0.00     0.00  func0
+  0.00      0.84     0.00        1     0.00     0.00  getNeighbors
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+From the above output, I can see that the most time is spent in func1, so speeding up func1
+will cause the rest of the program to speed up a lot.
+
+To speed up func1, I used 30 threads and parallelized the for loops. In addition, I reduced the
+total number of calculations made by taking the results of repeated calculations like i * Ones, 
+i * Ones + j, and j * 2 and storing them in local variables.
+
+I also sped up the other functions by parallelizing the for loops so that 30 threads would
+run the code. Furthermore, for any function that modified shared variables, I made them 
+private to each thread by using the 'private' keyword. For any function that used an 
+accumulator, I used the 'reduction' keyword, which allows me to collect the results into 
+one shared variable among the threads.
+
+Typed: make omp
+	-Compiles with OpenMP enabled
+Typed: ./omp
+	-Executes omp and produces the following output that tells me how long the program takes
+	FUNC TIME : 0.041613
+	TOTAL TIME : 2.172044
+
+From this, we can see that the program is approximately 0.746293/0.041613 = 17.9 times faster.
+
+Typed: make omp GPROF=1
+	-Compiles with gprof enabled
+Typed: ./omp
+Typed: gprof omp | less
+	-Tells you how much time is spent in each function and produces the following output
+
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  ms/call  ms/call  name
+ 60.56      0.49     0.49       77     6.37    10.27  filter
+ 19.77      0.65     0.16  4251903     0.00     0.00  func5
+ 11.12      0.74     0.09    44777     0.00     0.00  sequence
+  4.94      0.78     0.04        1    40.04   198.04  rand2
+  1.24      0.79     0.01        1    10.01    10.01  dilateMatrix
+  1.24      0.80     0.01                             getNeighbors
+  1.24      0.81     0.01                             round
+  0.00      0.81     0.00    80773     0.00     0.00  func4
+  0.00      0.81     0.00       45     0.00     0.00  func2
+  0.00      0.81     0.00       16     0.00     0.00  addSeed
+  0.00      0.81     0.00       15     0.00     0.00  func0
+  0.00      0.81     0.00       15     0.00     0.00  func1
+  0.00      0.81     0.00        3     0.00     0.00  func3
+  0.00      0.81     0.00        2     0.00     0.00  get_time
+  0.00      0.81     0.00        1     0.00     0.00  fillMatrix
+  0.00      0.81     0.00        1     0.00     0.00  rand1
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+	
+We can see that the time spent in func1 has significantly decreased.
+	
+Tpyed: make check
+	-Checks that output was correct and produces the following output
+	
+gcc -o omp  -O3 -fopenmp filter.c main.c func.c util.c -lm
+cp omp filter
+./filter
+FUNC TIME : 0.044267
+TOTAL TIME : 2.241036
+diff --brief correct.txt output.txt
+
+This shows that the program has the correct output.
+
+Typed: make omp MTRACE=1
+	-Compiles with memory tracing enabled
+Typed: ./omp
+Typed: make checkmem
+	-Outputs 'Memory not freed', but this can be ignored because OpenMP by default
+	leaks memory
